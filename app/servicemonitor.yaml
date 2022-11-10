@@ -1,0 +1,16 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: prometheus-back-springboot
+  name: prometheus-back-springboot
+  namespace: app
+spec:
+  endpoints:
+  - interval: 30s
+    port: http-8443
+    scheme: http
+  selector:
+    matchLabels:
+      app: back-springboot

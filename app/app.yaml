@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: back-springboot
+  namespace: app
+  labels:
+    app: back-springboot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: back-springboot
+  template:
+    metadata:
+      labels:
+        app: back-springboot
+    spec:
+      containers:
+      - image: quay.io/acidonpe/jump-app-back-springboot:monitoring
+        imagePullPolicy: Always
+        name: back-springboot
+        ports:
+        - containerPort: 8443
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: back-springboot
+  name: back-springboot
+  namespace: app
+spec:
+  ports:
+  - name: http-8443
+    port: 8443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    app: back-springboot
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: back-springboot
+  namespace: app
+spec:
+  to:
+    kind: Service
+    name: back-springboot
+  port:
+    targetPort: http-8443
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+

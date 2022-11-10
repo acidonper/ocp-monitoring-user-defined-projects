@@ -1,0 +1,14 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: example-alert
+  namespace: app
+spec:
+  groups:
+  - name: example
+    rules:
+    - alert: App1SessionsAlert
+      expr: tomcat_sessions_alive_max_seconds{job="back-springboot"} == 0
+      labels:
+        notifier: slack
