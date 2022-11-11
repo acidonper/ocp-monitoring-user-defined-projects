@@ -184,6 +184,61 @@ Once the receiver is configured and the alarm is fired, slack receives a new mes
 
 ![](pictures/slack-notification.png)
 
+## Monitoring Red Hat Service Mesh
+
+Red Hat OpenShift Service Mesh addresses a variety of problems in a microservice architecture by creating a centralized point of control in an application. It adds a transparent layer on existing distributed applications without requiring any changes to the application code.
+
+Red Hat OpenShift Service Mesh 2.2 uses Prometheus to store telemetry information from services. Kiali depends on Prometheus to obtain metrics, health status, and mesh topology.
+
+### Metrics
+
+In order to have a centralized point of monitoring, including alarming, is an option to unify Red Hat Service Mesh metrics in the Openshift Monitoring Stack by default. In order to perform this integration, it is required to follow the next steps:
+
+- Grant the required permissions to the Openshift Monitoring stack ServiceAccount for list objects in the Service Mesh Control Plane namespace
+
+```$bash
+$ oc policy add-role-to-user view system:serviceaccount:openshift-monitoring:prometheus-k8s -n istio-system
+```
+
+- Create a *service monitor* to scrape the respective metrics:
+
+```$bash
+$ oc apply -f istio/servicemonitor.yaml
+```
+
+Once the service monitor is created and the metrics have been scraped, it is possible to se a new target in the Openshift Console and display some metrics values:
+
+**Prometheus Targets**
+
+![](pictures/mesh-prometheus-federation.png)
+
+**Red Hat Service Mesh Metrics**
+
+![](pictures/mesh-metrics.png)
+
+
+## Alerting
+
+Once the Red Hat Service Mesh Prometheus and the Openshift Monitoring Stack Promethus are integrated, it is time to configure the respective alerting. 
+
+For example, it is possible create a set of alarms to monitorng the Red Hat Service Mesh control plane:
+
+- Create a *prometheus rule* to generate the respective alarms:
+
+```$bash
+$ oc apply -f istio/prometheusrule.yaml
+```
+
+- Review the alarms (Observe -> Alerting -> Alerting Rules -> Search by tag *component: istio*)
+
+![](pictures/mesh-alerting-rules.png)
+
+It can be clearly seen an alert firing because the number of Istiod replicas is low than 3. Please review the information in the alerting rule area as the picture shows.
+
+![](pictures/istiod-replicas-alert-rule.png)
+
+Finally, it is important to bear in mind that the fired alerts will trigger a notification in slack due to the label *notifier: slack* defined for every rule.
+
 ## Author
 
 Asier Cidon @RedHat
