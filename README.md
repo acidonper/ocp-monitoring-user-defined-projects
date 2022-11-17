@@ -17,20 +17,12 @@ Please visit the following [link](https://docs.openshift.com/container-platform/
 
 Cluster administrators can enable monitoring for user-defined projects by setting the *enableUserWorkload: true* field in the cluster monitoring ConfigMap object. Please follow the next steps in order to enable this feature:
 
-- Edit cluster monitoring configuration configmap adding the respective field
+- Create cluster monitoring configuration configmap
 
 ```$bash
-$ oc -n openshift-monitoring edit configmap cluster-monitoring-config
-...
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cluster-monitoring-config
-  namespace: openshift-monitoring
-data:
-  config.yaml: |
-    enableUserWorkload: true  <------ Include this field
-...
+$ oc -n openshift-monitoring apply -f ocp/monitoring-cm.yaml
+
+configmap/cluster-monitoring-config created
 ```
 
 - Review the pods are running in the openshift-user-workload-monitoring project
